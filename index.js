@@ -2,7 +2,7 @@ const express = require('express');
 const { google } = require('googleapis');
 const app = express();
 const { GoogleAuth } = require('google-auth-library');
-
+const port = process.env.PORT || '3000';
 //DATA THAT WILL COME FROM BUBBLE
 var new_spreadsheet_name = 'Testfile kopija';
 
@@ -40,7 +40,9 @@ app.post("/sheetGenerator", async(req, res) => {
     res.send(newSpreadsheet.data.id);
 });
 
-
+app.listen(port, () => {
+    console.log(`API is listening at http://localhost:${port}`)
+})
 
 
 
