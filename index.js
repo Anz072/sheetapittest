@@ -3,8 +3,9 @@ const { google } = require('googleapis');
 const app = express();
 const { GoogleAuth } = require('google-auth-library');
 const port = process.env.PORT || '3000';
+
 //DATA THAT WILL COME FROM BUBBLE
-var new_spreadsheet_name = 'Testfile kopija';
+var new_spreadsheet_name;
 
 app.use(function(req, res, next) {
 
@@ -25,7 +26,11 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.post("/sheetGenerator", async(req, res) => {
+app.get('/', (req, res) => {
+    res.send('This is an API test.')
+})
+
+app.post("/sheet", async(req, res) => {
     var query = req.query;
 
     //authorization
@@ -37,9 +42,6 @@ app.post("/sheetGenerator", async(req, res) => {
     const client = await auth.getClient();
     const googleSheets = google.sheets({ version: "v4", auth: client });
     const drive = google.drive({ version: "v3", auth: client });
-
-
-    var spreadsheetId = "18Dxbp27atU7oNaZG-6tUz5WW97mWQO7YZIyV_gEG0CM";
 
     var newSpreadsheet = await CopyFile(query.new_spreadsheet_name, auth, drive);
 
