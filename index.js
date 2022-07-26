@@ -1,11 +1,21 @@
 const express = require('express');
 const { google } = require('googleapis');
-const app = express();
 const { GoogleAuth } = require('google-auth-library');
 const port = process.env.PORT || '3000';
+const fs = require('fs');
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
+const app = express();
+require('dotenv').config();
 
-//DATA THAT WILL COME FROM BUBBLE
-var new_spreadsheet_name;
+const testUser = JSON.parse(process.env.CREDENTIALS);
+
+const valueInputOption = 'USER_ENTERED';
+const range = [
+    'A1',
+    'A2',
+    'A3'
+]
 
 app.use(function(req, res, next) {
 
@@ -30,8 +40,13 @@ app.get('/', (req, res) => {
     res.send('This is an API test.')
 })
 
-app.post("/sheet", async(req, res) => {
-    var query = req.query;
+/*  --------------------------------------------------
+            SEND FROM BUBBLE IN BODY
+            sheetID - id of edit sheet
+            SheetName - name for the new spreadsheet
+    --------------------------------------------------*/
+
+app.post("/sheet", jsonParser, async(req, res) => {
 
     //authorization
     const auth = new google.auth.GoogleAuth({
@@ -39,25 +54,31 @@ app.post("/sheet", async(req, res) => {
         scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
     });
 
+
     const client = await auth.getClient();
     const googleSheets = google.sheets({ version: "v4", auth: client });
     const drive = google.drive({ version: "v3", auth: client });
+    var newSpreadsheet;
 
-    var newSpreadsheet = await CopyFile(query.new_spreadsheet_name, auth, drive);
+    if (req.body.sheetID == '0') {
+        //create new file
+        var newSpreadsheetMain = await CopyFile(req.body.SheetName, auth, drive);
+        newSpreadsheet = newSpreadsheetMain.data.id;
+    } else {
+        newSpreadsheet = req.body.sheetID;
+    }
 
-    var valueInputOption = 'USER_ENTERED';
-    var range = [
-        'A1',
-        'A2',
-        'A3',
-        'B3'
-    ]
-    await updateValues(googleSheets, newSpreadsheet.data.id, range[0], valueInputOption, query.value1);
-    await updateValues(googleSheets, newSpreadsheet.data.id, range[1], valueInputOption, query.value2);
-    await updateValues(googleSheets, newSpreadsheet.data.id, range[2], valueInputOption, query.value3);
-    await updateValues(googleSheets, newSpreadsheet.data.id, range[3], valueInputOption, query.value4);
+    await updateValues(googleSheets, newSpreadsheet, range[0], valueInputOption, req.body.values[0]);
+    await updateValues(googleSheets, newSpreadsheet, range[1], valueInputOption, req.body.values[1]);
+    await updateValues(googleSheets, newSpreadsheet, range[2], valueInputOption, req.body.values[2]);
 
-    res.send(newSpreadsheet.data.id);
+    //download a file
+    var file = await downloadFile(newSpreadsheet, drive);
+    var sheetMeta = await metaDataFromID(googleSheets, auth, newSpreadsheet);
+    var downloadName = sheetMeta.data.properties.title;
+    var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
+
+    res.send('x');
 });
 
 app.listen(port, () => {
@@ -65,7 +86,23 @@ app.listen(port, () => {
 })
 
 
+//FUNCTIONS
 
+
+//file download
+async function downloadFile(realFileId, drive) {
+    fileId = realFileId;
+
+    var file = drive.files.export({
+        fileId: realFileId,
+        alt: 'media',
+        mimeType: 'application/pdf'
+    }, { responseType: "stream" });
+
+    return file;
+}
+
+//makes a copy & puts it in specified folder
 async function CopyFile(newTitle, auth, drive) {
 
     let resource = {
@@ -93,12 +130,12 @@ async function CopyFile(newTitle, auth, drive) {
 
 
 
-
+//Updates a row in specified spreadsheet
 async function updateValues(googleSheets, spreadsheetId, range, valueInputOption, value) {
 
     let values = [
         [
-            value // Cell values ...
+            value
         ],
     ];
     const resource = {
@@ -119,7 +156,7 @@ async function updateValues(googleSheets, spreadsheetId, range, valueInputOption
 
 
 
-//FUNCTIONS
+//OTHER FUNCTIONS
 
 async function metaDataFromID(googleSheets, auth, spreadsheetId) {
     return googleSheets.spreadsheets.get({

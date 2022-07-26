@@ -1,7 +1,6 @@
 {
   "name": "testapp",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,12 +8,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "base-64": "^1.0.0",
+    "base64-stream": "^1.0.0",
+    "body-parser": "^1.20.0",
+    "dotenv": "^16.0.1",
+    "downloads-folder": "^3.0.3",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "google-auth-library": "^8.1.1",
-    "googleapis": "^105.0.0"
+    "googleapis": "^105.0.0",
+    "mime-types": "^2.1.35",
+    "mimelib": "^0.3.1",
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anz072/sheetapittest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Anz072/sheetapittest/issues"
+  },
+  "homepage": "https://github.com/Anz072/sheetapittest#readme",
+  "description": ""
 }
