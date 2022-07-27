@@ -70,13 +70,10 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var file = await downloadFile(spreadsheetId, drive);
     let bufferObj = Buffer.from(file.data, "utf8");
     let base64String = bufferObj.toString("base64");
-    var downloadDataJson = JSON.stringify({
-        filename: spreadsheetId,
-        contents: base64String
-    });
+
     var responseData = {
         sheetID: spreadsheetId,
-        downloadData: downloadDataJson
+        downloadData: base64String
     }
 
     res.send(responseData);
