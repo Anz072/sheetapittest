@@ -8,7 +8,8 @@ const jsonParser = bodyParser.json();
 const app = express();
 require('dotenv').config();
 
-const testUser = JSON.parse(process.env.CREDENTIALS);
+
+
 
 const valueInputOption = 'USER_ENTERED';
 const range = [
@@ -48,9 +49,10 @@ app.get('/', (req, res) => {
 
 app.post("/sheet", jsonParser, async(req, res) => {
 
+
     //authorization
     const auth = new google.auth.GoogleAuth({
-        keyFile: "credentials.json",
+        keyFile: ".env",
         scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
     });
 
@@ -78,7 +80,11 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var downloadName = sheetMeta.data.properties.title;
     var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
-    res.send('x');
+    var returnData = {
+        sheetID: newSpreadsheet,
+        downloadLINK: `https://testforgooglesheets.herokuapp.com/SheetPDF/${downloadName}.pdf`
+    };
+    res.send(returnData);
 });
 
 app.listen(port, () => {
