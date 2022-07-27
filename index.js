@@ -8,7 +8,8 @@ const jsonParser = bodyParser.json();
 const app = express();
 require('dotenv').config();
 
-
+const credPull = process.env.CREDENTIALS;
+const creds = JSON.parse(credPull);
 
 
 const valueInputOption = 'USER_ENTERED';
@@ -52,7 +53,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
 
     //authorization
     const auth = new google.auth.GoogleAuth({
-        keyFile: ".env",
+        credentials: creds,
         scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
     });
 
@@ -133,9 +134,6 @@ async function CopyFile(newTitle, auth, drive) {
 }
 
 
-
-
-
 //Updates a row in specified spreadsheet
 async function updateValues(googleSheets, spreadsheetId, range, valueInputOption, value) {
 
@@ -160,58 +158,9 @@ async function updateValues(googleSheets, spreadsheetId, range, valueInputOption
     } catch (err) { throw err; }
 }
 
-
-
-//OTHER FUNCTIONS
-
 async function metaDataFromID(googleSheets, auth, spreadsheetId) {
     return googleSheets.spreadsheets.get({
         auth,
         spreadsheetId,
-    });
-}
-
-async function getRows(spreadsheetId, googleSheets, auth, sheetName) {
-    return googleSheets.spreadsheets.values.get({
-        auth,
-        spreadsheetId,
-        range: sheetName,
-    });
-}
-
-async function createSheet(title, googleSheets, drive) {
-
-    const resource = {
-        properties: {
-            title,
-
-        },
-    };
-    var newSheet = await googleSheets.spreadsheets.create({
-        resource,
-        fields: 'spreadsheetId',
-    });
-    var fileId = await newSheet.data.spreadsheetId;
-    givePermissions(drive, fileId);
-    return fileId;
-}
-
-async function givePermissions(drive, fileId) {
-    return drive.permissions.create({
-        resource: {
-            type: "user",
-            role: "writer",
-            emailAddress: "rokasbalt02@gmail.com",
-        },
-        fileId: fileId,
-        fields: "id",
-    });
-}
-
-async function getFilesFromDrive(drive) {
-    return drive.files.list({
-        "corpora": "user",
-        "includeItemsFromAllDrives": true,
-        "supportsAllDrives": true
     });
 }
