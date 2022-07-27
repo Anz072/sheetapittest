@@ -4,6 +4,7 @@ const { GoogleAuth } = require('google-auth-library');
 const port = process.env.PORT || '3000';
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const { response } = require('express');
 const jsonParser = bodyParser.json();
 const app = express();
 require('dotenv').config();
@@ -81,13 +82,34 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
 
-    var x = file.data.pipe(fs.createWriteStream('..SheetPDF/' + downloadName + '.pdf'));
+    var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
-    var linkas = fs.readFileSync('../SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
+    //var linkas = fs.readFileSync('../SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
 
+    // const read = async() => {
+    //     const dataONE = await fs.readFile('SheetPDF/' + downloadName + '.pdf', "base65");
+    //     return new Buffer(dataONE);
+    // }
+    // console.log(dataONE);
+
+    var what = 'a';
+    const pdf2base64 = require('pdf-to-base64');
+    const xewa = await pdf2base64('SheetPDF/' + downloadName + '.pdf')
+        .then(
+            (response) => {
+                //console.log(response); //cGF0aC90by9maWxlLmpwZw==
+
+                what = response;
+            }
+        )
+        .catch(
+            (error) => {
+                console.log(error); //Exepection error....
+            }
+        )
     var returnData = {
         sheetID: spreadsheetId,
-        downloadLINK: linkas
+        downloadLINK: what
     };
 
 

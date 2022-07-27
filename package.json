@@ -20,6 +20,7 @@
         "googleapis": "^105.0.0",
         "mime-types": "^2.1.35",
         "mimelib": "^0.3.1",
+        "pdf-to-base64": "^1.0.3",
         "request": "^2.88.2"
     },
     "devDependencies": {
