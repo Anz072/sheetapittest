@@ -76,7 +76,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var readerFeed = await writer(file, downloadName);
     //var reader = fs.readFileSync(downloadName + ".pdf", { encoding: 'base64' });
 
-    console.log(reader);
+    //console.log(reader);
     var what = 'dab';
     var se = await pdf2base64(downloadName + '.pdf')
         .then(
