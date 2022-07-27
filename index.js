@@ -70,11 +70,11 @@ app.post("/sheet", jsonParser, async(req, res) => {
     } else {
         spreadsheetId = req.body.sheetID;
     }
-    var values = ['abc', 'def', 'ghi'];
 
-    await updateValues(googleSheets, spreadsheetId, range[0], valueInputOption, values[0]);
-    await updateValues(googleSheets, spreadsheetId, range[1], valueInputOption, values[1]);
-    await updateValues(googleSheets, spreadsheetId, range[2], valueInputOption, values[2]);
+
+    await updateValues(googleSheets, spreadsheetId, range[0], valueInputOption, req.body.values[0]);
+    await updateValues(googleSheets, spreadsheetId, range[1], valueInputOption, req.body.values[1]);
+    await updateValues(googleSheets, spreadsheetId, range[2], valueInputOption, req.body.values[2]);
 
     //download a file
     var file = await downloadFile(spreadsheetId, drive);
@@ -82,10 +82,13 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var downloadName = sheetMeta.data.properties.title;
     var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
+    var linkas = fs.readFileSync('SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
     var returnData = {
         sheetID: spreadsheetId,
-        downloadLINK: `https://testforgooglesheets.herokuapp.com/SheetPDF/${downloadName}.pdf`
+        downloadLINK: linkas
     };
+
+
     res.send(returnData);
 });
 
