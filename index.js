@@ -80,9 +80,11 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var file = await downloadFile(spreadsheetId, drive);
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
+
     var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
     var linkas = fs.readFileSync('SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
+
     var returnData = {
         sheetID: spreadsheetId,
         downloadLINK: linkas
