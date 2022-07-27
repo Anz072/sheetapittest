@@ -62,37 +62,23 @@ app.post("/sheet", jsonParser, async(req, res) => {
         spreadsheetId = req.body.sheetID;
     }
 
-
     await updateValues(googleSheets, spreadsheetId, range[0], valueInputOption, req.body.values[0]);
     await updateValues(googleSheets, spreadsheetId, range[1], valueInputOption, req.body.values[1]);
     await updateValues(googleSheets, spreadsheetId, range[2], valueInputOption, req.body.values[2]);
 
     //download a file
     var file = await downloadFile(spreadsheetId, drive);
-    var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
-    var downloadName = sheetMeta.data.properties.title;
+    let bufferObj = Buffer.from(file.data, "utf8");
+    let base64String = bufferObj.toString("base64");
 
+    var responseData = {
+        sheetID: spreadsheetId,
+        downloadData: base64String
+    }
 
-    var readerFeed = await writer(file, downloadName);
-    //var reader = fs.readFileSync(downloadName + ".pdf", { encoding: 'base64' });
-
-    //console.log(reader);
-    var what = 'dab';
-    var se = await pdf2base64(downloadName + '.pdf')
-        .then(
-            (response) => {
-                what = response;
-            }
-        )
-        .catch(
-            (error) => {
-                console.log(error);
-            }
-        );
-
-
-    res.send(what);
+    res.send(responseData);
 });
+
 
 app.listen(port, () => {
     console.log(`API is listening at http://localhost:${port}`)
@@ -100,12 +86,6 @@ app.listen(port, () => {
 
 
 //FUNCTIONS
-async function writer(file, downloadName) {
-
-    var w = fs.createWriteStream(downloadName + '.pdf');
-    var m = file.data.pipe(w);
-    return m;
-}
 
 //file download
 async function downloadFile(realFileId, drive) {
@@ -115,7 +95,7 @@ async function downloadFile(realFileId, drive) {
         fileId: realFileId,
         alt: 'media',
         mimeType: 'application/pdf'
-    }, { responseType: "stream" });
+    }, { responseType: "arraybuffer" });
 
     return file;
 }
