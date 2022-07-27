@@ -61,29 +61,29 @@ app.post("/sheet", jsonParser, async(req, res) => {
     const client = await auth.getClient();
     const googleSheets = google.sheets({ version: "v4", auth: client });
     const drive = google.drive({ version: "v3", auth: client });
-    var newSpreadsheet;
+    var spreadsheetId = '0';
 
     if (req.body.sheetID == '0') {
         //create new file
         var newSpreadsheetMain = await CopyFile(req.body.SheetName, auth, drive);
-        newSpreadsheet = newSpreadsheetMain.data.id;
+        spreadsheetId = newSpreadsheetMain.data.id;
     } else {
-        newSpreadsheet = req.body.sheetID;
+        spreadsheetId = req.body.sheetID;
     }
     var values = ['abc', 'def', 'ghi'];
 
-    await updateValues(googleSheets, newSpreadsheet, range[0], valueInputOption, values[0]);
-    await updateValues(googleSheets, newSpreadsheet, range[1], valueInputOption, values[1]);
-    await updateValues(googleSheets, newSpreadsheet, range[2], valueInputOption, values[2]);
+    await updateValues(googleSheets, spreadsheetId, range[0], valueInputOption, values[0]);
+    await updateValues(googleSheets, spreadsheetId, range[1], valueInputOption, values[1]);
+    await updateValues(googleSheets, spreadsheetId, range[2], valueInputOption, values[2]);
 
     //download a file
-    var file = await downloadFile(newSpreadsheet, drive);
-    var sheetMeta = await metaDataFromID(googleSheets, auth, newSpreadsheet);
+    var file = await downloadFile(spreadsheetId, drive);
+    var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
     var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
     var returnData = {
-        sheetID: newSpreadsheet,
+        sheetID: spreadsheetId,
         downloadLINK: `https://testforgooglesheets.herokuapp.com/SheetPDF/${downloadName}.pdf`
     };
     res.send(returnData);
@@ -137,7 +137,7 @@ async function CopyFile(newTitle, auth, drive) {
 
 //Updates a row in specified spreadsheet
 async function updateValues(googleSheets, spreadsheetId, range, valueInputOption, value) {
-
+    console.log(spreadsheetId);
     let values = [
         [
             value
@@ -158,6 +158,8 @@ async function updateValues(googleSheets, spreadsheetId, range, valueInputOption
         return result;
     } catch (err) { throw err; }
 }
+
+
 
 async function metaDataFromID(googleSheets, auth, spreadsheetId) {
     return googleSheets.spreadsheets.get({
