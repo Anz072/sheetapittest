@@ -5,6 +5,7 @@ const port = process.env.PORT || '3000';
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const { response } = require('express');
+const { Console } = require('console');
 const jsonParser = bodyParser.json();
 const app = express();
 require('dotenv').config();
@@ -82,15 +83,9 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
 
-    var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
+    var x = await file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
     //var linkas = fs.readFileSync('../SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
-
-    // const read = async() => {
-    //     const dataONE = await fs.readFile('SheetPDF/' + downloadName + '.pdf', "base65");
-    //     return new Buffer(dataONE);
-    // }
-    // console.log(dataONE);
 
     var what = 'a';
     const pdf2base64 = require('pdf-to-base64');
@@ -157,7 +152,6 @@ async function CopyFile(newTitle, auth, drive) {
     x.then((value) => {
         console.log(value.data.id);
     });
-
     return x;
 }
 
@@ -181,7 +175,6 @@ async function updateValues(googleSheets, spreadsheetId, range, valueInputOption
     };
     try {
         const result = await googleSheets.spreadsheets.values.update(request);
-        console.log('%d cells updated.', result.data.updatedCells);
         return result;
     } catch (err) { throw err; }
 }
