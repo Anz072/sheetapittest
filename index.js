@@ -9,7 +9,7 @@ const { Console } = require('console');
 const jsonParser = bodyParser.json();
 const app = express();
 require('dotenv').config();
-
+const pdf2base64 = require('pdf-to-base64');
 const credPull = process.env.CREDENTIALS;
 const creds = JSON.parse(credPull);
 
@@ -71,14 +71,8 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var file = await downloadFile(spreadsheetId, drive);
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
-
-    var x = await file.data.pipe(fs.createWriteStream(downloadName + '.pdf'));
-
-    var linkas = fs.readFileSync(downloadName + '.pdf', { encoding: 'base64' });
-
     var what = 'a';
-    const pdf2base64 = require('pdf-to-base64');
-    const xewa = await pdf2base64(downloadName + '.pdf')
+    var x = await writer(file, downloadName).then(await pdf2base64(downloadName + '.pdf')
         .then(
             (response) => {
                 what = response;
@@ -88,11 +82,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
             (error) => {
                 console.log(error);
             }
-        )
-    var returnData = {
-        sheetID: spreadsheetId,
-        downloadLINK: what
-    };
+        ));
 
 
     res.send(sheetMeta);
@@ -104,7 +94,9 @@ app.listen(port, () => {
 
 
 //FUNCTIONS
-
+async function writer(file, downloadName) {
+    return file.data.pipe(fs.createWriteStream(downloadName + '.pdf'));
+}
 
 //file download
 async function downloadFile(realFileId, drive) {
