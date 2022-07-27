@@ -70,10 +70,11 @@ app.post("/sheet", jsonParser, async(req, res) => {
     } else {
         newSpreadsheet = req.body.sheetID;
     }
+    var values = ['abc', 'def', 'ghi'];
 
-    await updateValues(googleSheets, newSpreadsheet, range[0], valueInputOption, req.body.values[0]);
-    await updateValues(googleSheets, newSpreadsheet, range[1], valueInputOption, req.body.values[1]);
-    await updateValues(googleSheets, newSpreadsheet, range[2], valueInputOption, req.body.values[2]);
+    await updateValues(googleSheets, newSpreadsheet, range[0], valueInputOption, values[0]);
+    await updateValues(googleSheets, newSpreadsheet, range[1], valueInputOption, values[1]);
+    await updateValues(googleSheets, newSpreadsheet, range[2], valueInputOption, values[2]);
 
     //download a file
     var file = await downloadFile(newSpreadsheet, drive);
