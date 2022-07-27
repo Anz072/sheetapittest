@@ -83,13 +83,13 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
 
-    var x = await file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
+    var x = await file.data.pipe(fs.createWriteStream('app/SheetPDF/' + downloadName + '.pdf'));
 
     //var linkas = fs.readFileSync('../SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
 
     var what = 'a';
     const pdf2base64 = require('pdf-to-base64');
-    const xewa = await pdf2base64('SheetPDF/' + downloadName + '.pdf')
+    const xewa = await pdf2base64('app/SheetPDF/' + downloadName + '.pdf')
         .then(
             (response) => {
                 //console.log(response); //cGF0aC90by9maWxlLmpwZw==
