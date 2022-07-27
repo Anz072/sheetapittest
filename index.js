@@ -73,7 +73,10 @@ app.post("/sheet", jsonParser, async(req, res) => {
 
     var responseData = {
         sheetID: spreadsheetId,
-        downloadData: base64String
+        downloadData: {
+            filename: spreadsheetId,
+            contents: base64String
+        }
     }
 
     res.send(responseData);
