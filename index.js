@@ -83,7 +83,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
 
     var x = file.data.pipe(fs.createWriteStream('SheetPDF/' + downloadName + '.pdf'));
 
-    var linkas = fs.readFileSync('SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
+    var linkas = fs.readFileSync('./SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
 
     var returnData = {
         sheetID: spreadsheetId,
