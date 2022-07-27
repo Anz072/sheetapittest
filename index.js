@@ -12,7 +12,7 @@ require('dotenv').config();
 const pdf2base64 = require('pdf-to-base64');
 const credPull = process.env.CREDENTIALS;
 const creds = JSON.parse(credPull);
-var split_module = require('SheetPDF');
+
 
 const valueInputOption = 'USER_ENTERED';
 const range = [
@@ -73,25 +73,25 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var downloadName = sheetMeta.data.properties.title;
 
 
-    var readerFeed = writer(file, downloadName);
-    var reader = fs.readFileSync(readerFeed.data, { encoding: 'base64' });
+    var readerFeed = await writer(file, downloadName);
+    var reader = fs.readFileSync(downloadName + ".pdf", { encoding: 'base64' });
 
     console.log(reader);
-    // setTimeout(
-    // await pdf2base64('wfoke' + '.pdf')
-    // .then(
-    //     (response) => {
-    //         what = response;
-    //     }
-    // )
-    // .catch(
-    //     (error) => {
-    //         console.log(error);
-    //     }
-    // ), 5000));
+    var what = 'dab';
+    var se = await pdf2base64(downloadName + '.pdf')
+        .then(
+            (response) => {
+                what = response;
+            }
+        )
+        .catch(
+            (error) => {
+                console.log(error);
+            }
+        );
 
 
-    res.send(sheetMeta);
+    res.send(what);
 });
 
 app.listen(port, () => {
