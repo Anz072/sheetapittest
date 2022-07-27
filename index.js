@@ -72,17 +72,21 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
     var what = 'a';
-    var x = await writer(file, downloadName).then(await pdf2base64(downloadName + '.pdf')
-        .then(
-            (response) => {
-                what = response;
-            }
-        )
-        .catch(
-            (error) => {
-                console.log(error);
-            }
-        ));
+    var x = await writer(file, 'wfoke').then(fs.readFileSync('wfoke.pdf', { encoding: 'base64' }));
+
+
+    // setTimeout(
+    // await pdf2base64('wfoke' + '.pdf')
+    // .then(
+    //     (response) => {
+    //         what = response;
+    //     }
+    // )
+    // .catch(
+    //     (error) => {
+    //         console.log(error);
+    //     }
+    // ), 5000));
 
 
     res.send(sheetMeta);
