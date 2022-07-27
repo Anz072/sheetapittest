@@ -72,7 +72,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
     var what = 'a';
-    var x = await writer(file, downloadName).then(fs.readFileSync(`${downloadName}.pdf`, { encoding: 'base64' }));
+    var x = await writer(file, downloadName).then(fs.readFileSync(`/testapp/woke.pdf`, { encoding: 'base64' }));
 
     console.log(x);
     // setTimeout(
