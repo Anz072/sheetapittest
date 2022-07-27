@@ -12,7 +12,7 @@ require('dotenv').config();
 const pdf2base64 = require('pdf-to-base64');
 const credPull = process.env.CREDENTIALS;
 const creds = JSON.parse(credPull);
-
+var split_module = require('SheetPDF');
 
 const valueInputOption = 'USER_ENTERED';
 const range = [
@@ -71,10 +71,12 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var file = await downloadFile(spreadsheetId, drive);
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
-    var what = 'a';
-    var x = await writer(file, downloadName).then(fs.readFileSync(`/testapp/woke.pdf`, { encoding: 'base64' }));
 
-    console.log(x);
+
+    var readerFeed = writer(file, downloadName);
+    var reader = fs.readFileSync(readerFeed.data, { encoding: 'base64' });
+
+    console.log(reader);
     // setTimeout(
     // await pdf2base64('wfoke' + '.pdf')
     // .then(
@@ -99,7 +101,10 @@ app.listen(port, () => {
 
 //FUNCTIONS
 async function writer(file, downloadName) {
-    return file.data.pipe(fs.createWriteStream(downloadName + '.pdf'));
+
+    var w = fs.createWriteStream(downloadName + '.pdf');
+    var m = file.data.pipe(w);
+    return m;
 }
 
 //file download
