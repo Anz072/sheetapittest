@@ -22,21 +22,10 @@ const range = [
 ]
 
 app.use(function(req, res, next) {
-
-    // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
-
-    // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
-
-    // Pass to next layer of middleware
     next();
 });
 
@@ -83,23 +72,21 @@ app.post("/sheet", jsonParser, async(req, res) => {
     var sheetMeta = await metaDataFromID(googleSheets, auth, spreadsheetId);
     var downloadName = sheetMeta.data.properties.title;
 
-    var x = await file.data.pipe(fs.createWriteStream('app/SheetPDF/' + downloadName + '.pdf'));
+    var x = await file.data.pipe(fs.createWriteStream(downloadName + '.pdf'));
 
-    //var linkas = fs.readFileSync('../SheetPDF/' + downloadName + '.pdf', { encoding: 'base64' });
+    var linkas = fs.readFileSync(downloadName + '.pdf', { encoding: 'base64' });
 
     var what = 'a';
     const pdf2base64 = require('pdf-to-base64');
-    const xewa = await pdf2base64('app/SheetPDF/' + downloadName + '.pdf')
+    const xewa = await pdf2base64(downloadName + '.pdf')
         .then(
             (response) => {
-                //console.log(response); //cGF0aC90by9maWxlLmpwZw==
-
                 what = response;
             }
         )
         .catch(
             (error) => {
-                console.log(error); //Exepection error....
+                console.log(error);
             }
         )
     var returnData = {
@@ -108,7 +95,7 @@ app.post("/sheet", jsonParser, async(req, res) => {
     };
 
 
-    res.send(returnData);
+    res.send(sheetMeta);
 });
 
 app.listen(port, () => {
